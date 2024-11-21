@@ -5,8 +5,8 @@ from collections import defaultdict
 
 total_human_count = 0
 max_detection_delay = 30
-real_object_height = 1  # Высота забора в метрах
-object_height_in_pixels = 80  # Размер забора в пикселях
+real_object_height = 1  # The height of the fence in meters
+object_height_in_pixels = 80  # The size of the fence in pixels
 pixels_per_meter = object_height_in_pixels / real_object_height
 cap = cv2.VideoCapture("city.mp4")
 hog = cv2.HOGDescriptor()
@@ -49,7 +49,7 @@ while True:
             total_human_count += 1
             people[total_human_count] = (new_bbox, 0, (x + w/2, y + h/2), time.time())
 
-    # Определение групп
+    # Defining groups
     for person_id, (bbox, delay, last_position, last_timestamp) in people.items():
         if delay < max_detection_delay:
             (x, y, x1, y1) = bbox
@@ -78,7 +78,7 @@ while True:
             cv2.rectangle(frame, (x, y), (x1, y1), (0, 255, 0), 2)
             cv2.putText(frame, f'Person {person_id}', (x, y - 10), cv2.FONT_HERSHEY_DUPLEX, 0.8, (0, 255, 0), 2)
 
-            # Расчет скорости передвижения
+            # Calculation of movement speed
             if last_position is not None:
                 current_time = time.time()
                 time_diff = current_time - last_timestamp
@@ -91,13 +91,13 @@ while True:
                 if speed!=0:
                     cv2.putText(frame, f'Speed: {speed:.2f} km/h', (x, y - 70), cv2.FONT_HERSHEY_DUPLEX, 0.8, (0, 255, 0), 2)
 
-                # Определение роста с учетом масштабного отношения
+                # Determining growth based on a large-scale relationship
                 person_height_in_pixels = y1 - y
                 person_height_in_meters = person_height_in_pixels / pixels_per_meter
                 cv2.putText(frame, f'Height: {person_height_in_meters:.2f} meters', (x, y - 40), cv2.FONT_HERSHEY_DUPLEX, 0.8, (0, 255, 0), 2)
                 persons_file.write(f'Person {person_id}: Speed={speed:.2f} km/h, Height={person_height_in_meters:.2f} meters, Total count: {total_human_count}\n')
 
-    # Подсчет групп
+    # Counting groups
     group_sizes = [len(group_members) for group_members in groups.values()]
     group_2 = group_sizes.count(2)
     group_3 = group_sizes.count(3)
